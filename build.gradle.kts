@@ -53,6 +53,15 @@ tasks.jar {
     }
 }
 
+tasks.verifyPluginSignature {
+    inputArchiveFile = tasks.signPlugin.flatMap { it.signedArchiveFile }
+}
+
+tasks.publishPlugin {
+    archiveFiles.setFrom(tasks.signPlugin.flatMap { it.signedArchiveFile })
+    dependsOn(tasks.verifyPluginSignature)
+}
+
 intellijPlatform {
     pluginConfiguration {
         ideaVersion {
@@ -78,6 +87,10 @@ intellijPlatform {
         certificateChain = providers.environmentVariable("CERTIFICATE_CHAIN")
         privateKey = providers.environmentVariable("PRIVATE_KEY")
         password = providers.environmentVariable("PRIVATE_KEY_PASSWORD")
+    }
+
+    publishing {
+        token = providers.environmentVariable("PUBLISH_TOKEN")
     }
 
     pluginVerification {
